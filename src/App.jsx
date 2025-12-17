@@ -4,53 +4,44 @@ import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import PasswordList from "./components/PasswordList";
 import AddPasswordModal from "./components/AddPasswordModal";
+import "./App.css";
 
 function App() {
   const { passwords } = useContext(PasswordContext);
-
   const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
-  const [editingPassword, setEditingPassword] = useState(null);
 
-  const filteredPasswords = passwords.filter(p =>
+  const filtered = passwords.filter(p =>
     p.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  function openAddModal() {
-    setEditingPassword(null);
-    setShowModal(true);
-  }
-
-  function openEditModal(password) {
-    setEditingPassword(password);
-    setShowModal(true);
-  }
-
-  function closeModal() {
-    setShowModal(false);
-    setEditingPassword(null);
-  }
-
   return (
-    <div className="container">
+    <div className="app">
       <Header count={passwords.length} />
       <SearchBar onSearch={setSearch} />
 
-      <button onClick={openAddModal}>
-        Add New Password
+      <button className="add-btn" onClick={() => setShowModal(true)}>
+        + Add New Password
       </button>
+
+      <PasswordList
+        passwords={filtered}
+        onEdit={p => {
+          setEditing(p);
+          setShowModal(true);
+        }}
+      />
 
       {showModal && (
         <AddPasswordModal
-          onClose={closeModal}
-          editingData={editingPassword}
+          editingData={editing}
+          onClose={() => {
+            setEditing(null);
+            setShowModal(false);
+          }}
         />
       )}
-
-      <PasswordList
-        passwords={filteredPasswords}
-        onEdit={openEditModal}
-      />
     </div>
   );
 }
